@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أثر باقٍ</title>
+    
+    <!-- ===== ملفات التثبيت الرسمية (PWA) ===== -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="مسبحة الدعاء">
+    <meta name="theme-color" content="#B88B4A">
+    
+    <!-- أيقونات لأجهزة أبل (iOS) -->
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%23B88B4A'/%3E%3Ctext x='50' y='70' font-size='50' text-anchor='middle' fill='white' font-family='Arial'%3E📿%3C/text%3E%3C/svg%3E">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%23B88B4A'/%3E%3Ctext x='50' y='70' font-size='50' text-anchor='middle' fill='white' font-family='Arial'%3E📿%3C/text%3E%3C/svg%3E">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background: #F8F4E9;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            direction: rtl;
+            padding: 15px;
+        }
+
+       .watermark {
+            position: fixed;
+            bottom: 10px;
+            right: 15px;
+            color: rgba(247, 198, 206, 0.973);
+            font-size: 16px;
+            font-weight: normal;
+            
+            pointer-events: none;
+            z-index: 0;
+            border: 1px dashed  rgba(247, 198, 206, 0.973);
+            padding: 4px 12px;
+            border-radius: 30px;
+            backdrop-filter: blur(1px);
+            opacity: 0.6;
+            letter-spacing: 1px;
+        }
+
+        .container {
+            background: #FFFFFF;
+            width: 100%;
+            max-width: 480px;
+            padding: 30px 20px;
+            border-radius: 70px 70px 40px 40px;
+            box-shadow: 0 25px 40px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(184, 139, 74, 0.3);
+            text-align: center;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* شاشة إدخال الاسم */
+        .name-screen {
+            display: block;
+        }
+
+        .main-screen {
+            display: none;
+        }
+
+        .name-box {
+            background: #F8F4E9;
+            padding: 35px 20px;
+            border-radius: 50px;
+            border: 1px solid #B88B4A;
+        }
+
+        .name-box h2 {
+            color: #2E2E2E;
+            font-size: 28px;
+            margin-bottom: 25px;
+        }
+
+        .name-box input {
+            width: 90%;
+            padding: 18px;
+            font-size: 22px;
+            text-align: center;
+            border: 2px solid #E0E0E0;
+            border-radius: 60px;
+            background: white;
+            margin-bottom: 25px;
+            font-weight: bold;
+            color: #2E2E2E;
+            transition: border 0.3s;
+        }
+
+        .name-box input:focus {
+            border-color: #B88B4A;
+            outline: none;
+        }
+
+        .name-box input::placeholder {
+            color: #B0B0B0;
+            font-size: 18px;
+        }
+
+        .btn-gold {
+            background: #B88B4A;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            padding: 18px 40px;
+            border: none;
+            border-radius: 60px;
+            box-shadow: 0 8px 0 #7E5E34;
+            cursor: pointer;
+            transition: 0.1s;
+            min-width: 200px;
+        }
+
+        .btn-gold:active {
+            transform: translateY(8px);
+            box-shadow: 0 2px 0 #7E5E34;
+        }
+
+        h1 {
+            font-size: 28px;
+            color: #2E2E2E;
+            margin-bottom: 10px;
+        }
+
+        .deceased-badge {
+            background: #F8F4E9;
+            color: #2E2E2E;
+            padding: 12px;
+            border-radius: 40px;
+            font-size: 22px;
+            font-weight: bold;
+            margin: 15px 0;
+            border: 1px solid #B88B4A;
+        }
+
+        .tasbih-display {
+            background: #1E1E1E;
+            color: #F8F4E9;
+            font-size: 50px;
+            font-weight: bold;
+            padding: 15px;
+            border-radius: 50px;
+            margin: 15px 0;
+            border: 3px solid #B88B4A;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .count-display {
+            background: #F8F4E9;
+            color: #2E2E2E;
+            font-size: 80px;
+            font-weight: bold;
+            padding: 10px;
+            border-radius: 40px;
+            margin: 15px 0;
+            border: 3px solid #B88B4A;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .dua-box {
+            background: #F8F4E9;
+            padding: 20px;
+            border-radius: 40px;
+            margin: 20px 0;
+            border: 2px solid #B88B4A;
+            min-height: 120px;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(184, 139, 74, 0.1);
+        }
+
+        .dua-text {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2E2E2E;
+            line-height: 1.6;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background: #B88B4A;
+            border: none;
+            color: white;
+            font-size: 22px;
+            font-weight: bold;
+            padding: 18px 25px;
+            border-radius: 60px;
+            cursor: pointer;
+            box-shadow: 0 8px 0 #7E5E34;
+            transition: 0.1s;
+            border: 1px solid rgba(255,255,255,0.3);
+            min-width: 130px;
+        }
+
+        button:active {
+            transform: translateY(8px);
+            box-shadow: 0 2px 0 #7E5E34;
+        }
+
+        .reset-btn {
+            background: #2E2E2E;
+            color: white;
+            box-shadow: 0 8px 0 #1A1A1A;
+        }
+
+        .reset-btn:active {
+            box-shadow: 0 2px 0 #1A1A1A;
+        }
+
+        .progress {
+            font-size: 18px;
+            color: #2E2E2E;
+            margin: 15px 0;
+            background: #F8F4E9;
+            padding: 12px;
+            border-radius: 40px;
+            border: 2px solid #E0E0E0;
+        }
+
+        /* رسالة التثبيت */
+        .install-message {
+            background: #B88B4A;
+            color: white;
+            padding: 12px;
+            border-radius: 40px;
+            margin-top: 15px;
+            font-size: 16px;
+            cursor: pointer;
+            display: none;
+            border: 2px solid white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        @keyframes celebrate {
+            0% { transform: scale(1); background: #F8F4E9; border-color: #B88B4A; }
+            50% { transform: scale(1.05); background: #F5E6D3; border-color: #B88B4A; }
+            100% { transform: scale(1); background: #F8F4E9; border-color: #B88B4A; }
+        }
+
+        .celebrate {
+            animation: celebrate 0.6s ease;
+        }
+    </style>
+</head>
+<body>
+
+<!-- العلامة المائية (غيري الاسم هنا) -->
+<div class="watermark"> مَرْيَمُ</div>
+
+<div class="container">
+
+    <!-- ======= رسالة التثبيت (بتظهر لو الجهاز بيدعم) ======= -->
+    <div id="installMessage" class="install-message" onclick="installApp()">
+        📲 اضغط هنا لتثبيت المسبحة على الشاشة الرئيسية
+    </div>
+
+    <!-- ======= شاشة إدخال اسم المتوفي ======= -->
+    <div id="nameScreen" class="name-screen">
+        <div class="name-box">
+            <h2>🕊️ اكتب اسم المتوفي 🕊️</h2>
+            <input type="text" id="deceasedNameInput" placeholder="مثال: محمد" autofocus>
+            <button class="btn-gold" onclick="saveName()">✅ ابدأ</button>
+        </div>
+    </div>
+
+    <!-- ======= الشاشة الرئيسية ======= -->
+    <div id="mainScreen" class="main-screen">
+        <h1>📿 مسبحة الرحمة 📿</h1>
+        
+        <div class="deceased-badge" id="deceasedDisplay">🕯️ المتوفي: --</div>
+
+        <!-- الذكر الثابت اللي بيتغير كل 33 مرة -->
+        <div class="tasbih-display" id="tasbihText">سبحان الله</div>
+
+        <!-- العداد -->
+        <div class="count-display" id="countDisplay">0</div>
+
+        <!-- مكان الدعاء (بيظهر فقط عند 33) -->
+        <div class="dua-box" id="duaBox">
+            <div class="dua-text" id="duaMessage">🌿</div>
+        </div>
+
+        <!-- الأزرار -->
+        <div class="buttons">
+            <button onclick="increment()">➕ تسبيحة</button>
+            <button class="reset-btn" onclick="resetCount()">🔄 إعادة</button>
+        </div>
+
+        <!-- التقدم -->
+        <div class="progress" id="progressText">0 / 33</div>
+    </div>
+</div>
+
+<!-- ===== Service Worker للتثبيت (بيتعمل مرة واحدة) ===== -->
+<script>
+    // تسجيل Service Worker عشان التثبيت
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+            navigator.serviceWorker.register('service-worker.js').then(function(registration) {
+                console.log('Service Worker registered with scope:', registration.scope);
+            }, function(err) {
+                console.log('Service Worker registration failed:', err);
+            });
+        });
+    }
+
+    // متغيرات التثبيت (PWA)
+    let deferredPrompt;
+    const installMessage = document.getElementById('installMessage');
+
+    // التقاط حدث التثبيت قبل ما يظهر
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        // إظهار رسالة التثبيت للمستخدم
+        installMessage.style.display = 'block';
+    });
+
+    // دالة تنفيذ التثبيت
+    function installApp() {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then((choiceResult) => {
+                if (choiceResult.outcome === 'accepted') {
+                    console.log('User accepted the install prompt');
+                } else {
+                    console.log('User dismissed the install prompt');
+                }
+                deferredPrompt = null;
+                installMessage.style.display = 'none';
+            });
+        }
+    }
+
+    // ========== المتغيرات ==========
+    let count = 0;
+    const target = 33;
+    let deceasedName = "";
+    let lastDuaIndex = -1;
+
+    // الأذكار الثابتة اللي بتتغير كل 33 مرة
+    const azkar = ["سبحان الله", "الحمدلله", "الله أكبر", "لا إله إلا الله", 
+                   "سبحان الله وبحمده", "سبحان الله العظيم", 
+                   "أستغفر الله", "اللهم صل على محمد"];
+    let currentZekrIndex = 0;
+
+    // أدعية للمتوفي
+    const duas = [
+        "اللهم اغفر له وارحمه",
+        "اللهم اجعل قبره روضة من رياض الجنة",
+        "اللهم آنسه في وحدته",
+        "اللهم ثبته عند السؤال",
+        "اللهم نور له قبره",
+        "اللهم اسقه من حوض نبيك",
+        "اللهم اجعله في كفالة إبراهيم",
+        "اللهم ارحم غربته",
+        "اللهم اجعل له في الجنة قصرًا",
+        "اللهم احشره مع الصديقين"
+    ];
+
+    // عناصر الصفحة
+    const nameScreen = document.getElementById('nameScreen');
+    const mainScreen = document.getElementById('mainScreen');
+    const deceasedInput = document.getElementById('deceasedNameInput');
+    const deceasedDisplay = document.getElementById('deceasedDisplay');
+    const countDisplay = document.getElementById('countDisplay');
+    const tasbihText = document.getElementById('tasbihText');
+    const duaMessage = document.getElementById('duaMessage');
+    const progressText = document.getElementById('progressText');
+    const duaBox = document.getElementById('duaBox');
+
+    // ========== حفظ اسم المتوفي ==========
+    function saveName() {
+        const name = deceasedInput.value.trim();
+        if (name === "") {
+            alert("الرجاء إدخال اسم المتوفي");
+            return;
+        }
+        deceasedName = name;
+        deceasedDisplay.innerHTML = `🕯️ المتوفي: ${deceasedName}`;
+        
+        // إخفاء شاشة الاسم وإظهار المسبحة
+        nameScreen.style.display = 'none';
+        mainScreen.style.display = 'block';
+        
+        // بداية نظيفة
+        resetCount();
+    }
+
+    // ========== تشغيل صوت احتفالي ==========
+    function playCelebrationSound() {
+        try {
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            
+            function playNote(freq, duration) {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.value = freq;
+                gain.gain.setValueAtTime(0.3, 0);
+                gain.gain.exponentialRampToValueAtTime(0.01, duration);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(duration);
+            }
+
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume().then(() => {
+                    playNote(523.25, 0.2);
+                    setTimeout(() => playNote(659.25, 0.2), 200);
+                    setTimeout(() => playNote(783.99, 0.3), 400);
+                });
+            } else {
+                playNote(523.25, 0.2);
+                setTimeout(() => playNote(659.25, 0.2), 200);
+                setTimeout(() => playNote(783.99, 0.3), 400);
+            }
+
+            if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+            
+            duaBox.classList.add('celebrate');
+            setTimeout(() => duaBox.classList.remove('celebrate'), 600);
+
+        } catch (e) {
+            console.log("الصوت غير متاح");
+        }
+    }
+
+    // ========== تحديث الذكر ==========
+    function updateZekr() {
+        tasbihText.textContent = azkar[currentZekrIndex];
+    }
+
+    // ========== التبديل للذكر التالي ==========
+    function nextZekr() {
+        currentZekrIndex = (currentZekrIndex + 1) % azkar.length;
+        updateZekr();
+    }
+
+    // ========== دعاء عشوائي ==========
+    function getRandomDua() {
+        let randomIndex;
+        do {
+            randomIndex = Math.floor(Math.random() * duas.length);
+        } while (randomIndex === lastDuaIndex && duas.length > 1);
+        lastDuaIndex = randomIndex;
+        return `${duas[randomIndex]} 🤲<br> <span style="font-size:18px; color:#2E2E2E;">اللهم ارحم ${deceasedName}</span>`;
+    }
+
+    // ========== تحديث العرض ==========
+    function updateDisplay() {
+        countDisplay.textContent = count;
+
+        let percentage = (count / target) * 100;
+        if (percentage > 100) percentage = 100;
+        progressText.innerHTML = `📿 ${count} / ${target} (${Math.floor(percentage)}%)`;
+
+        // هنا كل 33 مرة
+        if (count > 0 && count % target === 0) {
+            playCelebrationSound();           // صوت
+            duaMessage.innerHTML = getRandomDua();  // يظهر الدعاء فقط هنا
+            nextZekr();                        // الذكر يتغير للي بعده
+        } else {
+            // لو مش 33، الدعاء يختفي (يصير فاضي)
+            duaMessage.innerHTML = "🌿";
+        }
+    }
+
+    // ========== زيادة العدد ==========
+    function increment() {
+        count++;
+        updateDisplay();
+    }
+
+    // ========== إعادة الضبط ==========
+    function resetCount() {
+        count = 0;
+        currentZekrIndex = 0;
+        lastDuaIndex = -1;
+        updateZekr();
+        duaMessage.innerHTML = "🌿";
+        updateDisplay();
+    }
+
+    // ========== مفتاح المسافة ==========
+    document.addEventListener('keydown', function(e) {
+        if (e.code === 'Space' && mainScreen.style.display === 'block') {
+            e.preventDefault();
+            increment();
+        }
+    });
+
+    window.addEventListener('keydown', function(e) {
+        if (e.code === 'Space') {
+            e.preventDefault();
+        }
+    }, false);
+</script>
+
+<!-- ===== Manifest.json داخلي (عشان يكون كل شيء في ملف واحد) ===== -->
+<script type="application/json" id="manifestJSON">
+{
+    "name": "مسبحة الدعاء للمتوفي",
+    "short_name": "مسبحة الدعاء",
+    "description": "مسبحة إلكترونية للدعاء للمتوفي كل 33 تسبيحة",
+    "start_url": ".",
+    "display": "standalone",
+    "background_color": "#F8F4E9",
+    "theme_color": "#B88B4A",
+    "orientation": "portrait",
+    "icons": [
+        {
+            "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%23B88B4A'/%3E%3Ctext x='50' y='70' font-size='50' text-anchor='middle' fill='white' font-family='Arial'%3E📿%3C/text%3E%3C/svg%3E",
+            "sizes": "192x192",
+            "type": "image/svg+xml"
+        },
+        {
+            "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%23B88B4A'/%3E%3Ctext x='50' y='70' font-size='70' text-anchor='middle' fill='white' font-family='Arial'%3E📿%3C/text%3E%3C/svg%3E",
+            "sizes": "512x512",
+            "type": "image/svg+xml"
+        }
+    ]
+}
+</script>
+
+<script>
+    // إنشاء manifest.json ديناميكيًا
+    (function() {
+        const manifestJSON = document.getElementById('manifestJSON').textContent;
+        const blob = new Blob([manifestJSON], {type: 'application/json'});
+        const manifestURL = URL.createObjectURL(blob);
+        const link = document.createElement('link');
+        link.rel = 'manifest';
+        link.href = manifestURL;
+        document.head.appendChild(link);
+    })();
+</script>
+
+<!-- ===== Service Worker داخلي ===== -->
+<script>
+    // إنشاء service worker ديناميكيًا
+    (function() {
+        const swCode = `
+        const CACHE_NAME = 'tasbih-cache-v1';
+        const urlsToCache = [
+            '.',
+            'index.html'
+        ];
+
+        self.addEventListener('install', event => {
+            event.waitUntil(
+                caches.open(CACHE_NAME)
+                    .then(cache => {
+                        return cache.addAll(urlsToCache);
+                    })
+            );
+        });
+
+        self.addEventListener('fetch', event => {
+            event.respondWith(
+                caches.match(event.request)
+                    .then(response => {
+                        if (response) {
+                            return response;
+                        }
+                        return fetch(event.request);
+                    })
+            );
+        });
+
+        self.addEventListener('activate', event => {
+            event.waitUntil(
+                caches.keys().then(cacheNames => {
+                    return Promise.all(
+                        cacheNames.map(cacheName => {
+                            if (cacheName !== CACHE_NAME) {
+                                return caches.delete(cacheName);
+                            }
+                        })
+                    );
+                })
+            );
+        });
+        `;
+
+        const blob = new Blob([swCode], {type: 'application/javascript'});
+        const swURL = URL.createObjectURL(blob);
+        
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register(swURL).then(reg => {
+                console.log('Service Worker registered');
+            }).catch(err => {
+                console.log('Service Worker failed:', err);
+            });
+        }
+    })();
+</script>
+</body>
+</html>
